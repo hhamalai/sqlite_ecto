@@ -353,13 +353,21 @@ defmodule Sqlite.Ecto.Query do
 
   defp expr({:in, _, [left, right]}, sources) when is_list(right) do
     args = Enum.map_join(right, ", ", &expr(&1, sources))
-    if args == "", do: args = []
-    [expr(left, sources), "IN (", args, ")"]
+    args =
+        case args do
+            "" -> []
+            x -> x
+        end
+    [expr(left, sources), "IN (",  args, ")"]
   end
 
   defp expr({:in, _, [left, {:^, _, [ix, length]}]}, sources) do
     args = Enum.map_join(ix+1..ix+length, ", ", fn (_) -> "?" end)
-    if args == "", do: args = []
+    args =
+        case args do
+            "" -> []
+            x -> x
+        end
     [expr(left, sources), "IN (", args, ")"]
   end
 
